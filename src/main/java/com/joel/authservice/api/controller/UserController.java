@@ -1,5 +1,7 @@
 package com.joel.authservice.api.controller;
 
+import com.joel.authservice.domain.dtos.request.UserAdminRequestDTO;
+import com.joel.authservice.domain.dtos.request.UserUpdatePasswordRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserUpdateRequestDTO;
 import com.joel.authservice.domain.dtos.response.UserDTO;
 import com.joel.authservice.domain.services.UserService;
@@ -9,9 +11,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.ws.rs.POST;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -19,6 +23,7 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 public class UserController {
 
+    public static final String MSG_UPDATE_PASSWORD = "Password updated successfully.";
     private final UserService userService;
 
     @GetMapping
@@ -41,6 +46,20 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable UUID userId) {
         userService.delete(userId);
+    }
+
+    @PatchMapping("/{userId}/password")
+    public ResponseEntity<Object> updatePassword(
+            @PathVariable UUID userId,
+            @RequestBody @Valid UserUpdatePasswordRequestDTO userUpdatePasswordRequestDTO) {
+        userService.updatePassword(userId, userUpdatePasswordRequestDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(MSG_UPDATE_PASSWORD);
+    }
+
+    @PatchMapping("/admins")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDTO saveAdmin(@RequestBody @Valid UserAdminRequestDTO adminRequestDTO) {
+        return userService.saveAdmin(adminRequestDTO);
     }
 
 }

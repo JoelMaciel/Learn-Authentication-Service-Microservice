@@ -1,9 +1,12 @@
 package com.joel.authservice.domain.services.impl;
 
+import com.joel.authservice.domain.dtos.request.UserAdminRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserRequestDTO;
+import com.joel.authservice.domain.dtos.request.UserUpdatePasswordRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserUpdateRequestDTO;
 import com.joel.authservice.domain.dtos.response.UserDTO;
 import com.joel.authservice.domain.enums.RoleType;
+import com.joel.authservice.domain.exceptions.PasswordMismatchedException;
 import com.joel.authservice.domain.exceptions.UserNotFoundException;
 import com.joel.authservice.domain.models.RoleModel;
 import com.joel.authservice.domain.models.UserModel;
@@ -23,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    public static final String MISMATCHED_OLD_PASSWORD = "Mismatched old password";
     private final UserRepository userRepository;
     private final UserConverter userConverter;
     private final RoleService roleService;
@@ -68,6 +72,37 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(userModel);
     }
 
+    @Transactional
+    @Override
+    public void updatePassword(UUID userId, UserUpdatePasswordRequestDTO userUpdatePasswordRequestDTO) {
+        UserModel userModel = optionalUser(userId);
+        validatePassword(userUpdatePasswordRequestDTO, userModel);
+
+        UserModel userUpdated = userConverter.toUpdatePassword(userModel, userUpdatePasswordRequestDTO);
+        userRepository.save(userUpdated);
+    }
+
+    @Transactional
+    @Override
+    public UserDTO saveAdmin(UserAdminRequestDTO adminRequestDTO) {
+        UserModel user = optionalUser(adminRequestDTO.getUserId());
+
+        UserModel userTypeAdmin = userConverter.toUserTypeAdmin(user);
+        addRoleAdmin(userTypeAdmin);
+
+        return userConverter.toDTO(userRepository.save(userTypeAdmin));
+    }
+
+    private void addRoleAdmin(UserModel user) {
+        RoleModel roleModel = roleService.findByRoleName(RoleType.ROLE_ADMIN);
+        user.getRoles().add(roleModel);
+    }
+
+    private static void validatePassword(UserUpdatePasswordRequestDTO userUpdatePasswordRequestDTO, UserModel userModel) {
+        if (!userModel.getPassword().equals(userUpdatePasswordRequestDTO.getOldPassword())) {
+            throw new PasswordMismatchedException(MISMATCHED_OLD_PASSWORD);
+        }
+    }
 
     private void addRoleToUser(UserModel userModel, RoleType roleType) {
         RoleModel role = roleService.findByRoleName(roleType);
