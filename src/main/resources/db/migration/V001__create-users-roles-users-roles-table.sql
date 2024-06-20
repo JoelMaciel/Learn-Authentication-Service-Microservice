@@ -1,0 +1,25 @@
+CREATE TABLE USERS (
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(20) NOT NULL,
+    email VARCHAR(50) UNIQUE NOT NULL,
+    cpf VARCHAR(15) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    user_type VARCHAR(50) CHECK(user_type IN ('ADMIN', 'STUDENT')) NOT NULL,
+    full_name VARCHAR(60) NOT NULL,
+    phone_number VARCHAR(20),
+    creation_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    update_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE ROLES (
+    role_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    role_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE USERS_ROLES (
+    user_id UUID NOT NULL,
+    role_id UUID NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES ROLES(role_id) ON DELETE CASCADE
+);
