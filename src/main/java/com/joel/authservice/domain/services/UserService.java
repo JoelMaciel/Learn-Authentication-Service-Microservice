@@ -1,6 +1,8 @@
 package com.joel.authservice.domain.services;
 
+import com.joel.authservice.domain.dtos.request.UserAdminRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserRequestDTO;
+import com.joel.authservice.domain.dtos.request.UserUpdatePasswordRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserUpdateRequestDTO;
 import com.joel.authservice.domain.dtos.response.UserDTO;
 import com.joel.authservice.domain.models.UserModel;
@@ -22,4 +24,8 @@ public interface UserService {
     UserDTO save(UserRequestDTO userRequestDTO);
 
     void delete(UUID userId);
+
+    void updatePassword(UUID userId, UserUpdatePasswordRequestDTO userUpdatePasswordRequestDTO);
+
+    UserDTO saveAdmin(UserAdminRequestDTO adminRequestDTO);
 }
