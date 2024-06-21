@@ -36,9 +36,6 @@ public class UserRequestDTO {
     @Size(min = 10, max = 50)
     private String fullName;
 
-//    @NotNull
-//    private String userType;
-
     @NotBlank
     private String phoneNumber;
 }
