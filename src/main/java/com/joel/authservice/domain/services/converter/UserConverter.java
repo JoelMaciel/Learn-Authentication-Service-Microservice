@@ -8,6 +8,7 @@ import com.joel.authservice.domain.enums.UserType;
 import com.joel.authservice.domain.models.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -17,6 +18,8 @@ import java.util.HashSet;
 @Component
 @RequiredArgsConstructor
 public class UserConverter {
+
+    private final PasswordEncoder passwordEncoder;
 
     public Page<UserDTO> userDTOPage(Page<UserModel> users) {
         return users.map(this::toDTO);
@@ -41,7 +44,7 @@ public class UserConverter {
                 .username(userRequestDTO.getUsername())
                 .email(userRequestDTO.getEmail())
                 .cpf(userRequestDTO.getCpf())
-                .password(userRequestDTO.getPassword())
+                .password(passwordEncoder.encode(userRequestDTO.getPassword()))
                 .fullName(userRequestDTO.getFullName())
                 .userType(UserType.STUDENT)
                 .phoneNumber(userRequestDTO.getPhoneNumber())

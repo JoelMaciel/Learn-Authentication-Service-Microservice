@@ -21,6 +21,12 @@ spring:
     locations: classpath:db/migration, classpath:db/testdb
     baselineOnMigrate: true
 
+learn:
+  auth:
+    jwtSecret: ${JWT_SECRET}
+    jwtExpirationMs: 14400000
+
+
 logging:
   level:
     com.joel: TRACE

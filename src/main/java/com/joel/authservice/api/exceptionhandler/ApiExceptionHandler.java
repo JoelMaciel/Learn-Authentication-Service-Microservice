@@ -99,19 +99,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, webRequest);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleCircuitBreaker(IllegalArgumentException ex, WebRequest webRequest) {
-        HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
-        ProblemType problemType = ProblemType.SYSTEM_ERROR;
-        String detail = MSG_AGAIN_IN_A_FEW_MOMENTS;
-
-        Problem problem = createProblemBuilder(status, problemType, detail)
-                .userMessage(MSG_AGAIN_IN_A_FEW_MOMENTS)
-                .build();
-
-        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, webRequest);
-    }
-
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
                                                                   HttpHeaders headers, HttpStatus status, WebRequest request) {

@@ -12,10 +12,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.ws.rs.POST;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -56,6 +56,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(MSG_UPDATE_PASSWORD);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PatchMapping("/admins")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO saveAdmin(@RequestBody @Valid UserAdminRequestDTO adminRequestDTO) {
