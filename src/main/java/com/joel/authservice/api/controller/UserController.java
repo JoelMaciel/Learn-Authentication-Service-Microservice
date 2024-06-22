@@ -12,10 +12,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.ws.rs.POST;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -26,28 +26,33 @@ public class UserController {
     public static final String MSG_UPDATE_PASSWORD = "Password updated successfully.";
     private final UserService userService;
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping
     public Page<UserDTO> getAll(@PageableDefault(page = 0, size = 10, sort = "userId", direction = Sort.Direction.ASC)
                                 Pageable pageable) {
         return userService.findAll(pageable);
     }
 
+    @PreAuthorize("hasAnyRole('STUDENT')")
     @GetMapping("/{userId}")
     public UserDTO getOne(@PathVariable UUID userId) {
         return userService.findById(userId);
     }
 
+    @PreAuthorize("hasAnyRole('STUDENT')")
     @PutMapping("/{userId}")
     public UserDTO updateUser(@PathVariable UUID userId, @RequestBody @Valid UserUpdateRequestDTO userUpdate) {
         return userService.updateUser(userId, userUpdate);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable UUID userId) {
         userService.delete(userId);
     }
 
+    @PreAuthorize("hasAnyRole('STUDENT')")
     @PatchMapping("/{userId}/password")
     public ResponseEntity<Object> updatePassword(
             @PathVariable UUID userId,
@@ -56,6 +61,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(MSG_UPDATE_PASSWORD);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PatchMapping("/admins")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO saveAdmin(@RequestBody @Valid UserAdminRequestDTO adminRequestDTO) {

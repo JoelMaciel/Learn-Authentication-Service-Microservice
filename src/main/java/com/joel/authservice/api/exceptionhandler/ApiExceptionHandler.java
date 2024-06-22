@@ -38,9 +38,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public static final String MSG_GENERIC_ERROR_END_USER = "An unexpected internal system error has occurred. " +
             "Try again and if the problem persists, contact your system administrator.";
     public static final String ENTITY_IN_USE = "Entity cannot be deleted because it is in use";
-    public static final String MSG_AGAIN_IN_A_FEW_MOMENTS = "The system is currently unavailable, please try again in a few moments";
     public static final String INVALID_USERNAME_OR_PASSWORD = "Invalid username or password";
-    public static final String DO_NOT_HAVE_PERMISSION = "Access denied. You do not have permission to access this resource.";
     public static final String NOT_HAVE_PERMISSION_TO_ACCESS_THIS_RESOURCE = "Access denied. You do not have permission to access this resource.";
 
     private final MessageSource messageSource;
@@ -85,7 +83,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, webRequest);
     }
 
-
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.FORBIDDEN;
@@ -94,19 +91,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
         Problem problem = createProblemBuilder(status, problemType, detail)
                 .userMessage(NOT_HAVE_PERMISSION_TO_ACCESS_THIS_RESOURCE)
-                .build();
-
-        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, webRequest);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleCircuitBreaker(IllegalArgumentException ex, WebRequest webRequest) {
-        HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
-        ProblemType problemType = ProblemType.SYSTEM_ERROR;
-        String detail = MSG_AGAIN_IN_A_FEW_MOMENTS;
-
-        Problem problem = createProblemBuilder(status, problemType, detail)
-                .userMessage(MSG_AGAIN_IN_A_FEW_MOMENTS)
                 .build();
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, webRequest);
