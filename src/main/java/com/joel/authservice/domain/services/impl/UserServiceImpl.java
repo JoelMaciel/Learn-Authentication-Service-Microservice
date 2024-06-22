@@ -1,5 +1,6 @@
 package com.joel.authservice.domain.services.impl;
 
+import com.joel.authservice.api.configs.security.AuthenticationCurrentUserService;
 import com.joel.authservice.domain.dtos.request.UserAdminRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserUpdatePasswordRequestDTO;
@@ -7,6 +8,7 @@ import com.joel.authservice.domain.dtos.request.UserUpdateRequestDTO;
 import com.joel.authservice.domain.dtos.response.UserDTO;
 import com.joel.authservice.domain.enums.RoleType;
 import com.joel.authservice.domain.exceptions.PasswordMismatchedException;
+import com.joel.authservice.domain.exceptions.UserDoesNotHavePermissionException;
 import com.joel.authservice.domain.exceptions.UserNotFoundException;
 import com.joel.authservice.domain.models.RoleModel;
 import com.joel.authservice.domain.models.UserModel;
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserConverter userConverter;
     private final RoleService roleService;
+    private final AuthenticationCurrentUserService authenticationCurrentUserService;
 
     @Override
     public Page<UserDTO> findAll(Pageable pageable) {
@@ -47,6 +50,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO findById(UUID userId) {
+        validateCurrentUser(userId);
+
         UserModel userModel = optionalUser(userId);
         return userConverter.toDTO(userModel);
     }
@@ -54,6 +59,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDTO updateUser(UUID userId, UserUpdateRequestDTO userUpdate) {
+        validateCurrentUser(userId);
         UserModel user = optionalUser(userId);
         UserModel userUpdated = userConverter.toUpdateUser(user, userUpdate);
         return userConverter.toDTO(userRepository.save(userUpdated));
@@ -75,6 +81,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void updatePassword(UUID userId, UserUpdatePasswordRequestDTO userUpdatePasswordRequestDTO) {
+        validateCurrentUser(userId);
         UserModel userModel = optionalUser(userId);
         validatePassword(userUpdatePasswordRequestDTO, userModel);
 
@@ -91,6 +98,13 @@ public class UserServiceImpl implements UserService {
         addRoleAdmin(userTypeAdmin);
 
         return userConverter.toDTO(userRepository.save(userTypeAdmin));
+    }
+
+    private void validateCurrentUser(UUID userId) {
+        UUID currentUserId = authenticationCurrentUserService.getCurrentUser().getUserId();
+        if (!currentUserId.equals(userId)) {
+            throw new UserDoesNotHavePermissionException("Forbidden");
+        }
     }
 
     private void addRoleAdmin(UserModel user) {
