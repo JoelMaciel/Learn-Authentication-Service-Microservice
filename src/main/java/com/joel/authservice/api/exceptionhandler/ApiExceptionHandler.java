@@ -120,8 +120,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.CONFLICT;
-        ProblemType problemType = ProblemType.ENTITY_IN_USE;
-        String detail = ENTITY_IN_USE;
+        ProblemType problemType = ProblemType.INVALID_DATA;
+        String detail = ex.getMessage();
 
         Problem problem = createProblemBuilder(status, problemType, detail)
                 .userMessage(detail)
