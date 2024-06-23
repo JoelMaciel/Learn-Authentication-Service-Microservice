@@ -1,9 +1,11 @@
 package com.joel.authservice.domain.services.converter;
 
+import com.joel.authservice.domain.dtos.request.UserEventDTO;
 import com.joel.authservice.domain.dtos.request.UserRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserUpdatePasswordRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserUpdateRequestDTO;
 import com.joel.authservice.domain.dtos.response.UserDTO;
+import com.joel.authservice.domain.enums.ActionType;
 import com.joel.authservice.domain.enums.UserType;
 import com.joel.authservice.domain.models.UserModel;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +36,8 @@ public class UserConverter {
                 .fullName(user.getFullName())
                 .userType(String.valueOf(user.getUserType()))
                 .phoneNumber(user.getPhoneNumber())
-                .creationDate(user.getCreationDate())
-                .updateDate(user.getUpdateDate())
+                .creationDate(OffsetDateTime.now())
+                .updateDate(OffsetDateTime.now())
                 .build();
     }
 
@@ -72,6 +74,17 @@ public class UserConverter {
     public UserModel toUserTypeAdmin(UserModel userModel) {
         return userModel.toBuilder()
                 .userType(UserType.ADMIN)
+                .build();
+    }
+
+    public UserEventDTO toEventDTO(UserModel user, ActionType actionType) {
+        return UserEventDTO.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .userType(String.valueOf(user.getUserType()))
+                .cpf(user.getCpf())
+                .actionType(String.valueOf(actionType))
                 .build();
     }
 }
