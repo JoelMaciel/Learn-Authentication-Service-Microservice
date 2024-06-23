@@ -1,15 +1,15 @@
 package com.joel.authservice.domain.services.impl;
 
 import com.joel.authservice.api.configs.security.AuthenticationCurrentUserService;
+import com.joel.authservice.api.publishers.UserEventPublisher;
 import com.joel.authservice.domain.dtos.request.UserAdminRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserUpdatePasswordRequestDTO;
 import com.joel.authservice.domain.dtos.request.UserUpdateRequestDTO;
 import com.joel.authservice.domain.dtos.response.UserDTO;
+import com.joel.authservice.domain.enums.ActionType;
 import com.joel.authservice.domain.enums.RoleType;
-import com.joel.authservice.domain.exceptions.PasswordMismatchedException;
-import com.joel.authservice.domain.exceptions.UserDoesNotHavePermissionException;
-import com.joel.authservice.domain.exceptions.UserNotFoundException;
+import com.joel.authservice.domain.exceptions.*;
 import com.joel.authservice.domain.models.RoleModel;
 import com.joel.authservice.domain.models.UserModel;
 import com.joel.authservice.domain.repositories.UserRepository;
@@ -17,6 +17,7 @@ import com.joel.authservice.domain.services.RoleService;
 import com.joel.authservice.domain.services.UserService;
 import com.joel.authservice.domain.services.converter.UserConverter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,15 +25,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     public static final String MISMATCHED_OLD_PASSWORD = "Mismatched old password";
+    public static final String ALREADY_IN_USE = "Email is already in use.";
+    public static final String CPF_IS_ALREADY_IN_USE = "CPF is already in use.";
     private final UserRepository userRepository;
     private final UserConverter userConverter;
     private final RoleService roleService;
     private final AuthenticationCurrentUserService authenticationCurrentUserService;
+    private final UserEventPublisher userEventPublisher;
 
     @Override
     public Page<UserDTO> findAll(Pageable pageable) {
@@ -43,9 +48,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDTO save(UserRequestDTO userRequestDTO) {
+        validateEmailAndCpf(userRequestDTO);
         UserModel user = userConverter.toEntity(userRequestDTO);
         addRoleToUser(user, RoleType.ROLE_STUDENT);
-        return userConverter.toDTO(userRepository.save(user));
+
+        userRepository.save(user);
+
+        userEventPublisher.publisherEvent(userConverter.toEventDTO(user, ActionType.CREATE));
+
+        return userConverter.toDTO(user);
     }
 
     @Override
@@ -60,9 +71,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO updateUser(UUID userId, UserUpdateRequestDTO userUpdate) {
         validateCurrentUser(userId);
+
         UserModel user = optionalUser(userId);
         UserModel userUpdated = userConverter.toUpdateUser(user, userUpdate);
-        return userConverter.toDTO(userRepository.save(userUpdated));
+        userRepository.save(userUpdated);
+
+        userEventPublisher.publisherEvent(userConverter.toEventDTO(user, ActionType.UPDATE));
+
+        return userConverter.toDTO(userUpdated);
     }
 
     @Override
@@ -76,6 +92,8 @@ public class UserServiceImpl implements UserService {
     public void delete(UUID userId) {
         UserModel userModel = optionalUser(userId);
         userRepository.delete(userModel);
+
+        userEventPublisher.publisherEvent(userConverter.toEventDTO(userModel, ActionType.DELETE));
     }
 
     @Transactional
@@ -98,6 +116,16 @@ public class UserServiceImpl implements UserService {
         addRoleAdmin(userTypeAdmin);
 
         return userConverter.toDTO(userRepository.save(userTypeAdmin));
+    }
+
+    private void validateEmailAndCpf(UserRequestDTO userRequestDTO) {
+        if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
+            throw new EmailAlreadyExists(ALREADY_IN_USE);
+        }
+
+        if (userRepository.existsByCpf(userRequestDTO.getCpf())) {
+            throw new CpfAlreadyExists(CPF_IS_ALREADY_IN_USE);
+        }
     }
 
     private void validateCurrentUser(UUID userId) {
