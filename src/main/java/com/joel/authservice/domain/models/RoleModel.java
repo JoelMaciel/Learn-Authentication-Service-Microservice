@@ -2,6 +2,7 @@ package com.joel.authservice.domain.models;
 
 import com.joel.authservice.domain.enums.RoleType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Entity
 @Table(name = "ROLES")
 public class RoleModel implements GrantedAuthority {

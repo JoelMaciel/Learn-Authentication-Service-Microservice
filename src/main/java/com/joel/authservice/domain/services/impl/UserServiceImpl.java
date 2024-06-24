@@ -120,11 +120,11 @@ public class UserServiceImpl implements UserService {
 
     private void validateEmailAndCpf(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
-            throw new EmailAlreadyExists(ALREADY_IN_USE);
+            throw new EmailAlreadyExistsException(ALREADY_IN_USE);
         }
 
         if (userRepository.existsByCpf(userRequestDTO.getCpf())) {
-            throw new CpfAlreadyExists(CPF_IS_ALREADY_IN_USE);
+            throw new CpfAlreadyExistsException(CPF_IS_ALREADY_IN_USE);
         }
     }
 
