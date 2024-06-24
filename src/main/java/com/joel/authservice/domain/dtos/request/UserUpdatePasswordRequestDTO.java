@@ -1,11 +1,13 @@
 package com.joel.authservice.domain.dtos.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class UserUpdatePasswordRequestDTO {

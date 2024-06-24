@@ -2,9 +2,9 @@ package com.joel.authservice.domain.exceptions;
 
 import org.springframework.dao.DataIntegrityViolationException;
 
-public class CpfAlreadyExists extends DataIntegrityViolationException {
+public class CpfAlreadyExistsException extends DataIntegrityViolationException {
 
-    public CpfAlreadyExists(String message) {
+    public CpfAlreadyExistsException(String message) {
         super(message);
     }
 }
