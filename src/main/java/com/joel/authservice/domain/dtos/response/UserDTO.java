@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Data
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Data
 public class UserDTO {
 
     private UUID userId;
