@@ -13,7 +13,7 @@ import com.joel.authservice.domain.models.UserModel;
 import com.joel.authservice.domain.repositories.UserRepository;
 import com.joel.authservice.domain.services.RoleService;
 import com.joel.authservice.domain.services.converter.UserConverter;
-import com.joel.authservice.domain.utils.TestUtils;
+import com.joel.authservice.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,6 +75,7 @@ class UserServiceImplTest {
         userRequestDTO = TestUtils.getMockUserRequestDTO();
         userDTO = TestUtils.getMockUserDTO();
         userModel = TestUtils.getMockUserModel();
+        userModel.setUserId(UUID.fromString("081caae9-358d-4ded-9a37-e2a66573549a"));
         roleModel = TestUtils.getMockRoleModel();
         userEventDTO = TestUtils.getMockUserEventDTO();
         userUpdateRequestDTO = TestUtils.getMockUserUpdateRequestDTO();
