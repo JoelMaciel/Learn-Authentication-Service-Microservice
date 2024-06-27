@@ -31,7 +31,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     public static final String MISMATCHED_OLD_PASSWORD = "Mismatched old password";
-    public static final String ALREADY_IN_USE = "Email is already in use.";
+    public static final String ALREADY_IN_USE = "Email already exists.";
     public static final String CPF_IS_ALREADY_IN_USE = "CPF is already in use.";
     private final UserRepository userRepository;
     private final UserConverter userConverter;
