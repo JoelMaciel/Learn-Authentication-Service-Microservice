@@ -1,0 +1,47 @@
+server:
+  port: 8086
+  servlet:
+    context-path: '/learn-auth/'
+
+spring:
+  application:
+    name: learn-auth-service
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob.non-contextual-creation: true
+    show-sql: true
+  flyway:
+    locations: classpath:db/migration, classpath:db/testdb
+    baselineOnMigrate: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+learn:
+  auth:
+    jwtSecret:
+    jwtExpirationMs: 14400000
+  serviceRegistry:
+    username: ${NAME}
+    password: ${PASSWORD}
+  broker:
+    exchange: userevent
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: 'http://${learn.serviceRegistry.username}:${learn.serviceRegistry.password}@localhost:8761/eureka'
+  instance:
+    hostname: localhost
+
+logging:
+  level:
+    com.joel: TRACE
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate: INFO
