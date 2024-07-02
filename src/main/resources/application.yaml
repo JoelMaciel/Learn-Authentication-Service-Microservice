@@ -17,6 +17,11 @@ spring:
         jdbc:
           lob.non-contextual-creation: true
     show-sql: true
+  servlet:
+    multipart:
+      file-size-threshold: 2KB
+      max-file-size: 4MB
+      max-request-size: 6MB
   flyway:
     locations: classpath:db/migration, classpath:db/testdb
     baselineOnMigrate: true
@@ -25,6 +30,9 @@ spring:
     port: 5672
     username: guest
     password: guest
+
+file:
+  upload-dir: /home/joelmaciel/1_Projetos/java/LearnEasy/upload
 
 learn:
   auth:
