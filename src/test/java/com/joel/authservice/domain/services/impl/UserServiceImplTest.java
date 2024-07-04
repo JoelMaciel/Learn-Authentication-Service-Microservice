@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 class UserServiceImplTest {
 
     public static final String MSG_USER_NOT_FOUND = "User 081caae9-358d-4ded-9a37-e2a66573549a not found in the database";
-    public static final String ALREADY_IN_USE = "Email is already in use.";
+    public static final String ALREADY_IN_USE = "Email already exists.";
     public static final String MISMATCHED_OLD_PASSWORD = "Mismatched old password";
     public static final String FORBIDDEN = "Forbidden";
     public static final String CPF_IS_IN_USE = "CPF is already in use.";
