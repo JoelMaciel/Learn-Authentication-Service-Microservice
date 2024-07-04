@@ -31,7 +31,7 @@ jobs:
       run: mvn clean package
 
     - name: Docker Compose Build
-      working-directory: ./authuser
+      working-directory: .
       run: docker-compose build
 
     - name: Push to Docker Hub Container Registry
