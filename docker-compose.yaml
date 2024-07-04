@@ -43,8 +43,6 @@ services:
     command: mvn spring-boot:run
     depends_on:
       - postgres_auth
-      - microservice-service-registry
-      - microservice-api-gateway
       - rabbitmq
     networks:
       - learneasy
