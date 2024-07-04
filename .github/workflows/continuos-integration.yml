@@ -27,7 +27,7 @@ jobs:
         cache: maven
         
     - name: Build application JAR
-      working-directory: ./authuser
+      working-directory: .
       run: mvn clean package
 
     - name: Docker Compose Build
