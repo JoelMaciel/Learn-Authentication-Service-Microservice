@@ -1,12 +1,11 @@
 package com.joel.authservice.integration.testcontainers;
 
-
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.lifecycle.Startables;
 
 import java.util.Map;
@@ -15,18 +14,23 @@ import java.util.stream.Stream;
 @ContextConfiguration(initializers = AbstractIntegrationTest.Initializer.class)
 public class AbstractIntegrationTest {
 
+
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0.28");
+        static PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:13.4");
 
         private static void startContainers() {
-            Startables.deepStart(Stream.of(mysql)).join();
+            Startables.deepStart(Stream.of(postgresql)).join();
         }
 
-        private static Map<String, String> cretaeConnetionConfigurantion() {
+        private static Map<String, String> createConnectionConfiguration() {
             return Map.of(
-                    "spring.datasource.url", mysql.getJdbcUrl(),
-                    "spring.datasource.username", mysql.getUsername(),
-                    "spring.datasource.password", mysql.getPassword());
+                    "spring.datasource.url", postgresql.getJdbcUrl(),
+                    "spring.datasource.username", postgresql.getUsername(),
+                    "spring.datasource.password", postgresql.getPassword(),
+                    "spring.datasource.driver-class-name", postgresql.getDriverClassName(),
+                    "spring.jpa.hibernate.ddl-auto", "update",
+                    "spring.jpa.database-platform", "org.hibernate.dialect.PostgreSQLDialect"
+            );
         }
 
         @Override
@@ -37,7 +41,7 @@ public class AbstractIntegrationTest {
             ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
             MapPropertySource testcontainers = new MapPropertySource(
-                    "testcontainers", (Map) cretaeConnetionConfigurantion());
+                    "testcontainers", (Map) createConnectionConfiguration());
 
             environment.getPropertySources().addFirst(testcontainers);
         }

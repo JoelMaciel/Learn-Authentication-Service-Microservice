@@ -1,45 +1,49 @@
 version: '3.8'
 
 services:
-
   postgres_auth:
     image: postgres
-    container_name: postgres-auth
+    container_name: postgres-authuser
+    restart: always
     environment:
-      POSTGRES_DB: auth
-      POSTGRES_USER: joel
+      TZ: America/Sao_Paulo
+      POSTGRES_DB: authuser
+      POSTGRES_USER: viana
       POSTGRES_PASSWORD: docker
     ports:
       - "5433:5432"
     networks:
-      - mynetwork
+      - learneasy
 
   postgres_course:
     image: postgres
     container_name: postgres-course
     environment:
       POSTGRES_DB: course
-      POSTGRES_USER: joel
+      POSTGRES_USER: viana
       POSTGRES_PASSWORD: docker
     ports:
       - "5434:5432"
     networks:
-      - mynetwork
+      - learneasy
 
   postgres_purchase:
     image: postgres
     container_name: postgres-purchase
+    restart: always
     environment:
       POSTGRES_DB: purchase
-      POSTGRES_USER: joel
+      POSTGRES_USER: viana
       POSTGRES_PASSWORD: docker
     ports:
       - "5435:5432"
     networks:
-      - mynetwork
+      - learneasy
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
+    restart: always
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -47,8 +51,101 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     networks:
-      - mynetwork
+      - learneasy
 
+  microservice-authuser:
+    image: joel37/learn-authuser
+    restart: always
+    build: .
+    working_dir: /authservice
+    environment:
+      TZ: America/Sao_Paulo
+      SPRING.DATA.SOURCE.URL: jdbc:postgresql://postgres_auth:5433/authuser
+      SPRING.DATA.SOURCE.USERNAME: viana
+      SPRING.DATA.SOURCE.PASSWORD: docker
+    ports:
+      - "8081:8081"
+    command: mvn spring-boot:run
+    depends_on:
+      - postgres_auth
+      - microservice-service-registry
+      - microservice-api-gateway
+      - rabbitmq
+    networks:
+      - learneasy
+
+  microservice-purchase:
+    image: joel37/learn-purchase
+    restart: always
+    build: ../purchase
+    working_dir: /purchase
+    environment:
+      TZ: America/Sao_Paulo
+      SPRING.DATA.SOURCE.URL: jdbc:postgresql://postgres_purchase:5435/purchase
+      SPRING.DATA.SOURCE.USERNAME: viana
+      SPRING.DATA.SOURCE.PASSWORD: docker
+    ports:
+      - "8084:8084"
+    command: mvn spring-boot:run
+    depends_on:
+      - postgres_purchase
+      - microservice-service-registry
+      - microservice-api-gateway
+      - rabbitmq
+    networks:
+      - learneasy
+
+  microservice-course:
+    image: joel37/learn-course
+    restart: always
+    build: ../course
+    working_dir: /course
+    environment:
+      TZ: America/Sao_Paulo
+      SPRING.DATA.SOURCE.URL: jdbc:postgresql://postgres_auth:5434/course
+      SPRING.DATA.SOURCE.USERNAME: viana
+      SPRING.DATA.SOURCE.PASSWORD: docker
+    ports:
+      - "8082:8082"
+    command: mvn spring-boot:run
+    depends_on:
+      - microservice-service-registry
+      - microservice-api-gateway
+    networks:
+      - learneasy
+
+  microservice-service-registry:
+    image: joel37/learn-service-registry
+    restart: always
+    build: ../service-registry
+    working_dir: /service-registry
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_APPLICATION_NAME: learn-service-registry
+      SPRING_SECURITY_USER_NAME: serviceregistry
+      SPRING_SECURITY_USER_PASSWORD: learn123sr
+    command: mvn spring-boot:run
+    networks:
+      - learneasy
+
+  microservice-api-gateway:
+    image: joel37/learn-api-gateway
+    restart: always
+    build: ../api-gateway
+    working_dir: /api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: learn-api-gateway
+      SPRING_SECURITY_USER_NAME: serviceregistry
+      SPRING_SECURITY_USER_PASSWORD: learn123sr
+    command: mvn spring-boot:run
+    depends_on:
+      - microservice-service-registry
+    networks:
+      - learneasy
 
 networks:
-  mynetwork:
+  learneasy:
+    driver: bridge
