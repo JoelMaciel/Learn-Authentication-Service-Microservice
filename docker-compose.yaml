@@ -9,9 +9,37 @@ services:
       TZ: America/Sao_Paulo
       POSTGRES_DB: authuser
       POSTGRES_USER: viana
-      POSTGRES_PASSWORD: docker
+      POSTGRES_PASSWORD: docker123
     ports:
       - "5433:5432"
+    networks:
+      - learneasy
+
+  postgres_course:
+    image: postgres
+    container_name: postgres-course
+    restart: always
+    environment:
+      TZ: America/Sao_Paulo
+      POSTGRES_DB: course
+      POSTGRES_USER: viana
+      POSTGRES_PASSWORD: docker123
+    ports:
+      - "5434:5432"
+    networks:
+      - learneasy
+
+  postgres_purchase:
+    image: postgres
+    container_name: postgres-purchase
+    restart: always
+    environment:
+      TZ: America/Sao_Paulo
+      POSTGRES_DB: purchase
+      POSTGRES_USER: viana
+      POSTGRES_PASSWORD: docker123
+    ports:
+      - "5435:5432"
     networks:
       - learneasy
 
@@ -25,25 +53,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
-    networks:
-      - learneasy
-
-  microservice-authuser:
-    image: joel37/learn-authuser
-    restart: always
-    build: .
-    working_dir: /authservice
-    environment:
-      TZ: America/Sao_Paulo
-      SPRING.DATA.SOURCE.URL: jdbc:postgresql://postgres_auth:5433/authuser
-      SPRING.DATA.SOURCE.USERNAME: viana
-      SPRING.DATA.SOURCE.PASSWORD: docker
-    ports:
-      - "8081:8081"
-    command: mvn spring-boot:run
-    depends_on:
-      - postgres_auth
-      - rabbitmq
     networks:
       - learneasy
 
