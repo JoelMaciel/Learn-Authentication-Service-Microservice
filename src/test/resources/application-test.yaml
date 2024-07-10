@@ -38,7 +38,7 @@ learn:
 eureka:
   client:
     serviceUrl:
-      defaultZone: 'http://serviceregistry:learn123sr@microservice-service-registry:8761/eureka'
+      defaultZone: 'http://serviceregistry:learn123sr@localhost:8761/eureka'
   instance:
     hostname: microservice-authuser
 
